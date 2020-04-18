@@ -3,6 +3,7 @@
 namespace Moofik\LaravelFilters\Filter;
 
 use Illuminate\Database\Eloquent\Builder;
+use Moofik\LaravelFilters\Exceptions\StrategyNotSuitable;
 use Moofik\LaravelFilters\Filter\Strategy\Strategy;
 use Moofik\LaravelFilters\Query\Query;
 use Moofik\LaravelFilters\Query\QueryCollection;
@@ -22,12 +23,12 @@ abstract class Filter
     /**
      * @var string
      */
-    private $field;
+    protected $field;
 
     /**
      * @var Strategy
      */
-    private $strategy;
+    protected $strategy;
 
     /**
      * Filter constructor.
@@ -55,9 +56,14 @@ abstract class Filter
     /**
      * @param Builder $builder
      * @return Builder
+     * @throws StrategyNotSuitable
      */
-    public function apply(Builder $builder)
+    public function apply(Builder $builder): Builder
     {
+        if (!$this->isStrategySuitable()) {
+            throw new StrategyNotSuitable(get_class($this->strategy), __CLASS__);
+        }
+
         $query = $this->strategy->handle($this->query);
         $value = $query->getValue();
         $column = $query->getField();
@@ -83,7 +89,7 @@ abstract class Filter
      * @param string $field
      * @return bool
      */
-    protected function isNestedField(string $field)
+    protected function isNestedField(string $field): bool
     {
         $result = explode('.', $field);
 
@@ -94,8 +100,10 @@ abstract class Filter
      * @param string $field
      * @return array
      */
-    protected function getRelationsTree(string $field)
+    protected function getRelationsTree(string $field): array
     {
         return explode('.', $field);
     }
+
+    abstract protected function isStrategySuitable(): bool;
 }
