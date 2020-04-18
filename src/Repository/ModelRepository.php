@@ -5,6 +5,7 @@ namespace Moofik\LaravelFilters\Repository;
 
 
 use Illuminate\Filesystem\Filesystem;
+use Throwable;
 
 class ModelRepository
 {
@@ -40,10 +41,13 @@ class ModelRepository
                 $this->discoverer->scanAndCache();
             }
 
-            $models = json_decode($this->filesystem->get(storage_path() . ModelDiscoverer::getCacheFilePath()), true);
+            $models = json_decode(
+                $this->filesystem->get(ModelDiscoverer::getCacheFilePath()),
+                true
+            );
 
             return isset($models[$shorthand]) ? $models[$shorthand] : null;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return null;
         }
     }
