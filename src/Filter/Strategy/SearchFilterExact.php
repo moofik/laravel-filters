@@ -12,6 +12,10 @@ class SearchFilterExact implements Strategy
      */
     public function handle(Query $query): Query
     {
-        return $query;
+        return new Query(
+            $query->getField(),
+            '=',
+            $query->getValue()
+        );
     }
 }

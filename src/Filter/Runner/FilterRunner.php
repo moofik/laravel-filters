@@ -9,6 +9,9 @@ use Moofik\LaravelFilters\Filter\Filter;
 
 class FilterRunner
 {
+    /**
+     * @var Filter[]
+     */
     private $filters = [];
 
     /**
@@ -25,6 +28,10 @@ class FilterRunner
      */
     public function run($builder): Builder
     {
+        foreach ($this->filters as $filter) {
+            $builder = $filter->apply($builder);
+        }
+
         return $builder;
     }
 }

@@ -12,6 +12,10 @@ class SearchFilterStart implements Strategy
      */
     public function handle(Query $query): Query
     {
-        return $query;
+        return new Query(
+            $query->getField(),
+            'LIKE',
+            $query->getValue() . '%'
+        );
     }
 }
