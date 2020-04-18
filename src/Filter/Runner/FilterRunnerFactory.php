@@ -8,16 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Moofik\LaravelFilters\Exceptions\ModelClassNotFilterable;
 use Moofik\LaravelFilters\Exceptions\ModelClassNotFound;
-use Moofik\LaravelFilters\Exceptions\ShouldBeImplemented;
 use Moofik\LaravelFilters\Exceptions\ShouldExtendsFilter;
 use Moofik\LaravelFilters\Exceptions\ShouldImplementsStrategy;
 use Moofik\LaravelFilters\Exceptions\StrategyNotFound;
 use Moofik\LaravelFilters\Filter\Filter;
 use Moofik\LaravelFilters\Filter\Strategy\FilterDefaultStrategy;
 use Moofik\LaravelFilters\Filter\Strategy\Strategy;
-use Moofik\LaravelFilters\Repository\ModelDiscoverer;
-use Moofik\LaravelFilters\Repository\ModelRepository;
 use Moofik\LaravelFilters\Query\QueryCollectionFactory;
+use Moofik\LaravelFilters\Repository\ModelRepository;
 use Moofik\LaravelFilters\Traits\Filterable;
 use Moofik\LaravelFilters\Utils\TraitFinder;
 
@@ -61,7 +59,6 @@ class FilterRunnerFactory
      * @return FilterRunner
      * @throws ModelClassNotFilterable
      * @throws ModelClassNotFound
-     * @throws ShouldBeImplemented
      * @throws ShouldExtendsFilter
      * @throws ShouldImplementsStrategy
      * @throws StrategyNotFound
@@ -81,7 +78,7 @@ class FilterRunnerFactory
         }
 
         if (null === $class || !class_exists($class)) {
-            throw new ModelClassNotFound();
+            throw new ModelClassNotFound($class);
         }
 
         $isFilterable = $this->traitFinder->isTraitUsed($class, Filterable::class);
@@ -114,7 +111,7 @@ class FilterRunnerFactory
             /** @var Filter $filter */
             $filter = new $filterClassName($queryCollection, $filterField, $filterStrategy);
             if (!$filter instanceof Filter) {
-                throw new ShouldExtendsFilter();
+                throw new ShouldExtendsFilter($filter);
             }
 
             if ($filter->isSuitable()) {

@@ -9,6 +9,6 @@ class SearchFilter extends Filter
 {
     public function apply(Builder $builder): Builder
     {
-        return  $builder;
+        return $builder;
     }
 }

@@ -56,5 +56,46 @@ abstract class Filter
      * @param Builder $builder
      * @return Builder
      */
-    abstract public function apply(Builder $builder): Builder;
+    public function apply(Builder $builder)
+    {
+        $query = $this->strategy->handle($this->query);
+        $value = $query->getValue();
+        $column = $query->getField();
+        $operator = $query->getOperator();
+
+        if ($this->isNestedField($column)) {
+            $relationsTree = $this->getRelationsTree($column);
+
+            $relation = $relationsTree[0];
+            $field = $relationsTree[1];
+
+            $builder->orWhereHas($relation, function (Builder $query) use ($field, $column, $operator, $value) {
+                $query->where($field, $operator, $value);
+            });
+        } else {
+            $builder->orWhere($column, $operator, $value);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * @param string $field
+     * @return bool
+     */
+    protected function isNestedField(string $field)
+    {
+        $result = explode('.', $field);
+
+        return count($result) > 1;
+    }
+
+    /**
+     * @param string $field
+     * @return array
+     */
+    protected function getRelationsTree(string $field)
+    {
+        return explode('.', $field);
+    }
 }
